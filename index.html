@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Heritage Tobacco - Ultimate 3D Factory | 8 Workers + 2 Managers + Product Boxes</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        #info {
+            position: absolute; top: 20px; left: 20px; z-index: 100;
+            background: rgba(0,0,0,0.75); color: white; padding: 10px 18px;
+            border-radius: 16px; backdrop-filter: blur(8px); pointer-events: none;
+            font-size: 13px; border-left: 4px solid #ffaa44; z-index: 200;
+            font-weight: 500;
+        }
+        .controls-panel {
+            position: absolute; bottom: 20px; right: 20px; z-index: 100;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+            padding: 10px 18px; border-radius: 30px; color: white; font-size: 12px;
+            display: flex; gap: 20px; pointer-events: none; font-family: monospace; z-index: 200;
+        }
+        .area-table {
+            position: absolute; left: 20px; top: 100px; z-index: 200;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
+            padding: 14px 20px; border-radius: 16px; color: #eee;
+            font-family: monospace; font-size: 11px; border-left: 3px solid #ffaa44;
+            pointer-events: none; min-width: 220px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .area-table h4 { margin-bottom: 10px; color: #ffaa44; font-size: 13px; }
+        .area-table table { width: 100%; border-collapse: collapse; }
+        .area-table td { padding: 4px 0; }
+        .area-table td:last-child { text-align: right; font-weight: bold; color: #ffaa44; }
+        .note {
+            position: absolute; bottom: 20px; left: 20px; z-index: 200;
+            background: rgba(0,0,0,0.5); color: #ccc; padding: 6px 12px;
+            border-radius: 20px; font-size: 10px; pointer-events: none;
+        }
+        @media (max-width: 700px) {
+            #info { font-size: 10px; top: 10px; left: 10px; }
+            .controls-panel { font-size: 9px; padding: 6px 12px; gap: 12px; }
+            .area-table { top: 80px; font-size: 9px; padding: 10px 14px; min-width: 170px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <strong>🏭 HERITAGE TOBACCO | PREMIUM MANUFACTURING HUB</strong><br>
+        📦 8,000 Sq.Ft. | 👥 8 Laborers + 2 Managers | 📦 Product Boxes | 🧪 Lab | 🔥 Fermentation Loft
+    </div>
+    <div class="controls-panel">
+        <span>🖱️ DRAG TO ROTATE</span> <span>🖱️ RIGHT-CLICK PAN</span> <span>🔍 SCROLL ZOOM</span>
+    </div>
+    <div class="area-table">
+        <h4>📐 AREA BREAKDOWN (Sq.Ft.)</h4>
+        <table>
+            <tr><td>Total Factory<td>8,000</tr>
+            <tr style="border-top:1px solid #444;"><td>RMC Storage<td>850</tr>
+            <tr><td>Pandarpuri Line<td>600</tr>
+            <tr><td>Shisha Line<td>600</tr>
+            <tr><td>Packaging Area<td>500</tr>
+            <tr><td>Special RM Lab<td>350</tr>
+            <tr><td>Office (Separate)<td>300</tr>
+            <tr><td>Meeting Room<td>250</tr>
+            <tr><td>Washrooms (2)<td>200</tr>
+            <tr><td>Loft Fermentation<td>1,200</tr>
+            <tr><td>Loading / Dispatch<td>500</tr>
+            <tr><td>Parking / Exterior<td>1,250</tr>
+        </table>
+    </div>
+    <div class="note">
+        🎨 COLORFUL ZONES | 👥 WORKERS | 📦 PRODUCT BOXES | 🟤 FERMENTATION
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a1210);
+        scene.fog = new THREE.FogExp2(0x0a1210, 0.0025);
+
+        const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(34, 22, 38);
+        camera.lookAt(0, 2, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        document.body.appendChild(labelRenderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+
+        // --- vibrant lighting ---
+        const ambient = new THREE.AmbientLight(0x404060, 0.65);
+        scene.add(ambient);
+        const mainLight = new THREE.DirectionalLight(0xfff5e0, 1.4);
+        mainLight.position.set(14, 20, 10);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 1024;
+        mainLight.shadow.mapSize.height = 1024;
+        mainLight.shadow.camera.near = 0.5;
+        mainLight.shadow.camera.far = 55;
+        mainLight.shadow.camera.left = -24;
+        mainLight.shadow.camera.right = 24;
+        mainLight.shadow.camera.top = 20;
+        mainLight.shadow.camera.bottom = -20;
+        scene.add(mainLight);
+        const fillLight = new THREE.PointLight(0xccaa77, 0.6);
+        fillLight.position.set(0, 5, 0);
+        scene.add(fillLight);
+        const backRim = new THREE.PointLight(0xffaa66, 0.6);
+        backRim.position.set(-8, 8, -18);
+        scene.add(backRim);
+        const warmFill = new THREE.PointLight(0xdc9e6a, 0.5);
+        warmFill.position.set(6, 6, 6);
+        scene.add(warmFill);
+        // accent colored lights
+        const redLight = new THREE.PointLight(0xff3366, 0.4);
+        redLight.position.set(8, 3, 7);
+        scene.add(redLight);
+        const blueLight = new THREE.PointLight(0x33ff66, 0.4);
+        blueLight.position.set(-8, 3, 7);
+        scene.add(blueLight);
+        const purpleLight = new THREE.PointLight(0xaa66ff, 0.4);
+        purpleLight.position.set(0, 3, -6);
+        scene.add(purpleLight);
+
+        const gridHelper = new THREE.GridHelper(60, 36, 0x8a7a60, 0x5a4e3a);
+        gridHelper.position.y = -0.15;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.25;
+        scene.add(gridHelper);
+
+        function makeLabel(text, color, bgOpacity = 0.75, yOff = 0.2, fontSize = '12px') {
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = color;
+            div.style.fontSize = fontSize;
+            div.style.fontWeight = 'bold';
+            div.style.backgroundColor = `rgba(0,0,0,${bgOpacity})`;
+            div.style.padding = '5px 14px';
+            div.style.borderRadius = '30px';
+            div.style.borderLeft = `4px solid ${color}`;
+            div.style.fontFamily = 'Inter, monospace';
+            div.style.backdropFilter = 'blur(4px)';
+            div.style.whiteSpace = 'nowrap';
+            const label = new CSS2DObject(div);
+            label.position.y = yOff;
+            return label;
+        }
+
+        // helper: create detailed human figure
+        function createWorker(x, z, color, labelText, isManager = false) {
+            const group = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color: color });
+            const bodyHeight = isManager ? 0.95 : 0.85;
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.55, bodyHeight, 0.45), bodyMat);
+            body.position.y = bodyHeight/2;
+            body.castShadow = true;
+            group.add(body);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffccaa });
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 16), headMat);
+            head.position.y = bodyHeight + 0.15;
+            head.castShadow = true;
+            group.add(head);
+            // hat for managers
+            if (isManager) {
+                const hatMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
+                const hat = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.3, 8), hatMat);
+                hat.position.y = bodyHeight + 0.45;
+                hat.castShadow = true;
+                group.add(hat);
+            }
+            group.position.set(x, 0, z);
+            scene.add(group);
+            const nameLabel = makeLabel(labelText, isManager ? '#ffaa66' : '#ffffff', 0.6, isManager ? 1.4 : 1.2, '10px');
+            nameLabel.position.set(x, isManager ? 1.4 : 1.2, z);
+            scene.add(nameLabel);
+        }
+
+        // --- GROUND FLOOR BASE ---
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0xbc9a6c, roughness: 0.5, metalness: 0.1 });
+        const groundFloor = new THREE.Mesh(new THREE.BoxGeometry(42, 0.25, 34), floorMat);
+        groundFloor.position.set(0, 0, 0);
+        groundFloor.receiveShadow = true;
+        groundFloor.castShadow = true;
+        scene.add(groundFloor);
+
+        // --- DECORATIVE BORDER LINES ---
+        const borderMat = new THREE.LineBasicMaterial({ color: 0xffaa66 });
+        const borderPoints = [
+            [-21, 0.05, -17], [21, 0.05, -17], [21, 0.05, 17], [-21, 0.05, 17], [-21, 0.05, -17]
+        ];
+        const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints.map(p => new THREE.Vector3(p[0], p[1], p[2])));
+        const borderLine = new THREE.Line(borderGeo, borderMat);
+        scene.add(borderLine);
+
+        // --- CENTRAL DRAINAGE (glowing green) ---
+        const drainMat = new THREE.MeshStandardMaterial({ color: 0x5a9e4a, metalness: 0.7, emissive: 0x226622 });
+        const mainDrain = new THREE.Mesh(new THREE.BoxGeometry(30, 0.08, 1.6), drainMat);
+        mainDrain.position.set(0, 0.08, 0);
+        mainDrain.castShadow = true;
+        scene.add(mainDrain);
+        for (let x = -15; x <= 15; x += 1.0) {
+            const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, 0.13, -0.75), new THREE.Vector3(x, 0.13, 0.75)]);
+            const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xaaffaa }));
+            scene.add(line);
+        }
+
+        // --- RMC STORAGE (colorful racks) ---
+        const rackColors = [0xccaa77, 0xbb9966, 0xddbb88];
+        for (let i = 0; i < 8; i++) {
+            const rack = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.5, 1.8), new THREE.MeshStandardMaterial({ color: rackColors[i % 3] }));
+            rack.position.set(-16 + i * 1.9, 1.25, -13);
+            rack.castShadow = true;
+            scene.add(rack);
+        }
+        for (let i = 0; i < 8; i++) {
+            const rack = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.5, 1.8), new THREE.MeshStandardMaterial({ color: rackColors[(i+1) % 3] }));
+            rack.position.set(-16 + i * 1.9, 1.25, -8.5);
+            rack.castShadow = true;
+            scene.add(rack);
+        }
+        const drums = [0xcc8844, 0xdd9955, 0xeeaa66];
+        for (let i = 0; i < 24; i++) {
+            const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.0, 12), new THREE.MeshStandardMaterial({ color: drums[i % 3] }));
+            drum.position.set(-17 + (i % 12) * 1.2, 0.5, -15 + Math.floor(i / 12) * 1.8);
+            drum.castShadow = true;
+            scene.add(drum);
+        }
+        const labelRMC = makeLabel('📦 RMC STORAGE (850 sq.ft)', '#ffaa88', 0.85, 2.4);
+        labelRMC.position.set(-12, 2.6, -11);
+        scene.add(labelRMC);
+
+        // --- PANDARPURI LINE (blue machinery) ---
+        const machineMatBlue = new THREE.MeshStandardMaterial({ color: 0x3f8bff, metalness: 0.6 });
+        const silverMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.7 });
+        const pandaPos = [[-12.5, 0.5, 5, 1.9, 1.0], [-10.5, 0.5, 5, 1.9, 1.0], [-8.5, 0.5, 5, 2.1, 1.1]];
+        pandaPos.forEach(pos => {
+            const machine = new THREE.Mesh(new THREE.BoxGeometry(pos[3], pos[4], 1.9), machineMatBlue);
+            machine.position.set(pos[0], pos[1], pos[2]);
+            machine.castShadow = true;
+            scene.add(machine);
+            const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 0.5, 12), silverMat);
+            cylinder.position.set(pos[0], pos[1] + 0.9, pos[2]);
+            scene.add(cylinder);
+        });
+        const labelPanda = makeLabel('⚙️ PANDARPURI LINE (600 sq.ft)', '#88aaff', 0.7, 1.4);
+        labelPanda.position.set(-10.5, 1.6, 5.5);
+        scene.add(labelPanda);
+
+        // --- SHISHA LINE (orange machinery) ---
+        const machineMatOrange = new THREE.MeshStandardMaterial({ color: 0xff8844, metalness: 0.5 });
+        const shishaPos = [[11.5, 0.5, 4.5, 2.0, 1.1], [9.5, 0.5, 4.5, 2.0, 1.1], [7.5, 0.5, 4.5, 2.0, 1.1]];
+        shishaPos.forEach(pos => {
+            const machine = new THREE.Mesh(new THREE.BoxGeometry(pos[3], pos[4], 2.0), machineMatOrange);
+            machine.position.set(pos[0], pos[1], pos[2]);
+            machine.castShadow = true;
+            scene.add(machine);
+            const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 1.1, 12), silverMat);
+            tank.position.set(pos[0], pos[1] + 1.3, pos[2]);
+            scene.add(tank);
+        });
+        const labelShisha = makeLabel('🍯 SHISHA LINE (600 sq.ft)', '#ffaa66', 0.7, 1.4);
+        labelShisha.position.set(9.5, 1.6, 5);
+        scene.add(labelShisha);
+
+        // --- PACKAGING MACHINE ---
+        const packer = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.0, 2.8), new THREE.MeshStandardMaterial({ color: 0x66ccff, metalness: 0.4 }));
+        packer.position.set(0, 1.0, -9.5);
+        packer.castShadow = true;
+        scene.add(packer);
+        const conveyor = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.2, 1.2), new THREE.MeshStandardMaterial({ color: 0x888888 }));
+        conveyor.position.set(0, 1.7, -7.8);
+        scene.add(conveyor);
+        const labelPack = makeLabel('📦 PACKAGING / DISPATCH (500 sq.ft)', '#ddbb99', 0.7, 1.6);
+        labelPack.position.set(3, 1.6, -9);
+        scene.add(labelPack);
+
+        // --- SPECIAL RM LAB (glass-like with interior) ---
+        const labMat = new THREE.MeshStandardMaterial({ color: 0x88aaff, transparent: true, opacity: 0.65 });
+        const specialLabBase = new THREE.Mesh(new THREE.BoxGeometry(7, 2.8, 8), labMat);
+        specialLabBase.position.set(13.5, 1.4, -3);
+        specialLabBase.castShadow = true;
+        scene.add(specialLabBase);
+        const labBench = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.9, 2.2), new THREE.MeshStandardMaterial({ color: 0xdddddd }));
+        labBench.position.set(14, 1.15, -1.5);
+        labBench.castShadow = true;
+        scene.add(labBench);
+        const microscope = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.7, 8), new THREE.MeshStandardMaterial({ color: 0xff66aa }));
+        microscope.position.set(13.5, 1.7, -1.5);
+        microscope.castShadow = true;
+        scene.add(microscope);
+        const labelSpecLab = makeLabel('🧪 SPECIAL RM LAB (350 sq.ft)', '#88ffaa', 0.7, 3.0);
+        labelSpecLab.position.set(13.5, 3.0, -1);
+        scene.add(labelSpecLab);
+
+        // --- OFFICE (separate, stylish) ---
+        const officeMat = new THREE.MeshStandardMaterial({ color: 0xddbb99 });
+        const officeBase = new THREE.Mesh(new THREE.BoxGeometry(6.5, 2.8, 6.5), officeMat);
+        officeBase.position.set(-15.5, 1.4, -4.5);
+        officeBase.castShadow = true;
+        scene.add(officeBase);
+        const desk = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.2, 1.1), new THREE.MeshStandardMaterial({ color: 0xb87c4a }));
+        desk.position.set(-16, 1.55, -3);
+        desk.castShadow = true;
+        scene.add(desk);
+        const labelOffice = makeLabel('🏢 SEPARATE OFFICE (300 sq.ft)', '#aaffdd', 0.7, 3.0);
+        labelOffice.position.set(-15.5, 3.0, -2.5);
+        scene.add(labelOffice);
+
+        // --- MEETING ROOM ---
+        const meetingBase = new THREE.Mesh(new THREE.BoxGeometry(6, 2.8, 6), officeMat);
+        meetingBase.position.set(-5.5, 1.4, -5.5);
+        meetingBase.castShadow = true;
+        scene.add(meetingBase);
+        const meetingTable = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.2, 2.0), new THREE.MeshStandardMaterial({ color: 0xc5a87a }));
+        meetingTable.position.set(-5.5, 1.55, -5.5);
+        meetingTable.castShadow = true;
+        scene.add(meetingTable);
+        const labelMeeting = makeLabel('📋 MEETING ROOM (250 sq.ft)', '#aaffdd', 0.7, 3.0);
+        labelMeeting.position.set(-5.5, 3.0, -4);
+        scene.add(labelMeeting);
+
+        // --- WASHROOMS (colorful) ---
+        const washMat = new THREE.MeshStandardMaterial({ color: 0x88aacc });
+        const wash1 = new THREE.Mesh(new THREE.BoxGeometry(3, 2.6, 3), washMat);
+        wash1.position.set(-12.5, 1.3, 8.5);
+        wash1.castShadow = true;
+        scene.add(wash1);
+        const wash2 = new THREE.Mesh(new THREE.BoxGeometry(3, 2.6, 3), washMat);
+        wash2.position.set(-7, 1.3, 8.5);
+        wash2.castShadow = true;
+        scene.add(wash2);
+        const labelWash = makeLabel('🚻 WASHROOMS (200 sq.ft)', '#aaffdd', 0.7, 2.6);
+        labelWash.position.set(-9.5, 2.6, 9);
+        scene.add(labelWash);
+
+        // --- LOFT FERMENTATION (vibrant brown) ---
+        const loftMatObj = new THREE.MeshStandardMaterial({ color: 0xbd7a4a, roughness: 0.6 });
+        const leftPlatform = new THREE.Mesh(new THREE.BoxGeometry(9.5, 0.2, 13), loftMatObj);
+        leftPlatform.position.set(-15, 3.8, 0);
+        leftPlatform.castShadow = true;
+        scene.add(leftPlatform);
+        const rightPlatform = new THREE.Mesh(new THREE.BoxGeometry(9.5, 0.2, 13), loftMatObj);
+        rightPlatform.position.set(15, 3.8, 0);
+        rightPlatform.castShadow = true;
+        scene.add(rightPlatform);
+        const berthMatFer = new THREE.MeshStandardMaterial({ color: 0xcc8844 });
+        for (let i = 0; i < 6; i++) {
+            const berth = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.75, 2.0), berthMatFer);
+            berth.position.set(-17 + (i % 3) * 2.2, 4.0, -5 + Math.floor(i / 3) * 3);
+            berth.castShadow = true;
+            scene.add(berth);
+            const berth2 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.75, 2.0), berthMatFer);
+            berth2.position.set(17 - (i % 3) * 2.2, 4.0, -5 + Math.floor(i / 3) * 3);
+            berth2.castShadow = true;
+            scene.add(berth2);
+        }
+        const labelLeftLoft = makeLabel('🔥 LEFT LOFT FERMENTATION (600 sq.ft)', '#ffaa66', 0.7, 5.4);
+        labelLeftLoft.position.set(-15, 5.4, 0);
+        scene.add(labelLeftLoft);
+        const labelRightLoft = makeLabel('🔥 RIGHT LOFT FERMENTATION (600 sq.ft)', '#ffaa66', 0.7, 5.4);
+        labelRightLoft.position.set(15, 5.4, 0);
+        scene.add(labelRightLoft);
+
+        // --- PRODUCT BOXES (colorful stacks) ---
+        const boxColors = [0xff6666, 0x66ff66, 0xffaa44, 0xaa66ff, 0x44ccff, 0xff88aa];
+        for (let i = 0; i < 40; i++) {
+            const boxMat = new THREE.MeshStandardMaterial({ color: boxColors[i % boxColors.length] });
+            const box = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.7), boxMat);
+            const x = -19 + (i % 10) * 1.3;
+            const z = -12 + Math.floor(i / 10) * 1.8;
+            box.position.set(x, 0.25, z);
+            box.castShadow = true;
+            scene.add(box);
+        }
+        const labelBoxes = makeLabel('📦 FINISHED PRODUCT BOXES (READY FOR DISPATCH)', '#ffcc88', 0.7, 0.9);
+        labelBoxes.position.set(-12, 1.0, -11.5);
+        scene.add(labelBoxes);
+
+        // --- 8 LABORERS (colorful uniforms, spread across factory) ---
+        const workerColors = [0xff6666, 0x66ff66, 0xffaa44, 0xaa66ff, 0x44ccff, 0xff88aa, 0x88ffaa, 0xffaa88];
+        const workerPositions = [
+            [-10, 3.2, -2], [-8, 3.2, -2], [-6, 3.2, -2], [6, 3.2, -2], [8, 3.2, -2], [10, 3.2, -2],
+            [-4, 3.2, 4], [4, 3.2, 4]
+        ];
+        workerPositions.forEach((pos, idx) => {
+            createWorker(pos[0], pos[2], workerColors[idx % workerColors.length], `👷 LABORER ${idx+1}`, false);
+        });
+
+        // --- 2 MANAGERS (standing near office) ---
+        createWorker(-13, -6, 0x44aaff, '👔 PRODUCTION MANAGER', true);
+        createWorker(12, -6, 0x44aaff, '👔 QUALITY MANAGER', true);
+
+        // --- UTILITY ZONE (back corner) ---
+        const utilityMatColor = new THREE.MeshStandardMaterial({ color: 0xccaa88 });
+        const utilityZone = new THREE.Mesh(new THREE.BoxGeometry(8, 0.5, 7), utilityMatColor);
+        utilityZone.position.set(20, 0.25, 12);
+        utilityZone.castShadow = true;
+        scene.add(utilityZone);
+        const labelUtility = makeLabel('🔧 UTILITY / SPARE STORAGE (400 sq.ft)', '#ddbb99', 0.7, 0.9);
+        labelUtility.position.set(20, 1.1, 12);
+        scene.add(labelUtility);
+
+        // --- EXTERIOR: trees, parking, gate ---
+        const treeMatObj = new THREE.MeshStandardMaterial({ color: 0x5a8f4c });
+        const treePos = [[-28, 0, -15], [-24, 0, -16], [-20, 0, -15], [24, 0, -16], [28, 0, -15], [-29, 0, 15], [29, 0, 15], [25, 0, 16]];
+        treePos.forEach(pos => {
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.95, 1.6, 6), new THREE.MeshStandardMaterial({ color: 0x6b4e2e }));
+            trunk.position.set(pos[0], 0.8, pos[2]);
+            trunk.castShadow = true;
+            scene.add(trunk);
+            const foliage = new THREE.Mesh(new THREE.ConeGeometry(1.1, 1.6, 8), treeMatObj);
+            foliage.position.set(pos[0], 1.7, pos[2]);
+            foliage.castShadow = true;
+            scene.add(foliage);
+        });
+        for (let i = 0; i < 14; i++) {
+            const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-26 + i * 2.0, 0.05, -12.5), new THREE.Vector3(-26 + i * 2.0, 0.05, -9)]);
+            const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0xffdd88 }));
+            scene.add(line);
+        }
+        const labelPark = makeLabel('🅿️ PARKING AREA (500 sq.ft)', '#ddbb99', 0.6, 0.7);
+        labelPark.position.set(-15, 0.9, -12);
+        scene.add(labelPark);
+
+        // main gate
+        const gateMat = new THREE.MeshStandardMaterial({ color: 0xaa8866 });
+        const gatePillar = new THREE.Mesh(new THREE.BoxGeometry(0.9, 3.8, 0.9), gateMat);
+        gatePillar.position.set(-23, 1.9, -16);
+        gatePillar.castShadow = true;
+        scene.add(gatePillar);
+        const gatePillar2 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 3.8, 0.9), gateMat);
+        gatePillar2.position.set(-17, 1.9, -16);
+        gatePillar2.castShadow = true;
+        scene.add(gatePillar2);
+        const gateBeam = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.35, 1.0), gateMat);
+        gateBeam.position.set(-20, 3.5, -16);
+        gateBeam.castShadow = true;
+        scene.add(gateBeam);
+        const labelGate = makeLabel('🚛 MAIN GATE & LOADING BAY (500 sq.ft)', '#ffaa88', 0.7, 1.3);
+        labelGate.position.set(-20, 1.6, -15);
+        scene.add(labelGate);
+
+        // --- ROOF (semi-transparent) ---
+        const roofMatObj = new THREE.MeshStandardMaterial({ color: 0xaaccdd, transparent: true, opacity: 0.12, metalness: 0.5 });
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(44, 0.1, 36), roofMatObj);
+        roof.position.set(0, 5.8, 0);
+        scene.add(roof);
+
+        // --- CEILING LIGHTS (floating) ---
+        const lightSpots = [[-15, 5.5, -10], [15, 5.5, -10], [-15, 5.5, 7], [15, 5.5, 7], [0, 5.5, -5]];
+        lightSpots.forEach(pos => {
+            const light = new THREE.PointLight(0xffaa66, 0.8, 26);
+            light.position.set(pos[0], pos[1], pos[2]);
+            scene.add(light);
+            const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffdd99, emissive: 0x442200 }));
+            bulb.position.copy(light.position);
+            scene.add(bulb);
+        });
+
+        // --- MAIN FLOOR LABELS ---
+        const labelProd = makeLabel('🏭 MAIN PRODUCTION FLOOR', '#ffcc88', 0.7, 2.0);
+        labelProd.position.set(0, 2.0, -2);
+        scene.add(labelProd);
+        const labelDrain = makeLabel('🕳️ FACTORY DRAINAGE SYSTEM', '#88ff88', 0.6, 1.2);
+        labelDrain.position.set(0, 1.2, 3.5);
+        scene.add(labelDrain);
+        const labelWorkers = makeLabel('👥 8 LABORERS ACTIVE ON FLOOR', '#ffee88', 0.7, 4.8);
+        labelWorkers.position.set(0, 4.8, 0);
+        scene.add(labelWorkers);
+
+        // --- ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
