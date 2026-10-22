@@ -7,8 +7,8 @@
 <style>
 :root{--panel:rgba(22,20,17,.88);--gold:#d9a441;--ink:#f2e9d6;--mute:#a99f8c;--line:rgba(217,164,65,.28)}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#0c0e0f;font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink)}
-canvas{display:block}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;background:#0c0e0f;font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink)}
+canvas{display:block;touch-action:none}
 #panel{position:absolute;left:16px;top:16px;width:310px;max-height:calc(100% - 100px);overflow:auto;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:14px;padding:16px;z-index:5}
 #panel h1{margin:0;font-size:19px;font-weight:700}
 #panel p.sub{margin:2px 0 12px;color:var(--mute);font-size:12px;line-height:1.45}
@@ -19,7 +19,7 @@ canvas{display:block}
 button{font:inherit;color:var(--ink);cursor:pointer}
 .btns button,#bar button{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:9px;padding:8px 6px;font-size:12px}
 .btns button:hover,#bar button:hover{background:rgba(217,164,65,.16)}
-.btns button.on,#bar button[aria-pressed=true]{background:var(--gold);color:#1a1409;border-color:var(--gold);font-weight:600}
+.btns button.on,.nbtns button[aria-pressed=true],#bar button[aria-pressed=true]{background:var(--gold);color:#1a1409;border-color:var(--gold);font-weight:600}
 button:focus-visible,li:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #zones{list-style:none;margin:0;padding:0}
 #zones li{padding:7px 8px;border-radius:8px;cursor:pointer;font-size:12.5px}
@@ -29,7 +29,8 @@ button:focus-visible,li:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #zones b{color:var(--gold);font-weight:600}
 #zones .bar{height:3px;border-radius:2px;margin-top:5px;background:rgba(255,255,255,.08)}
 #zones .bar s{display:block;height:100%;border-radius:2px}
-#card{margin-top:12px;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);font-size:12.5px;line-height:1.5;display:none}
+#card{position:absolute;right:16px;top:16px;width:290px;z-index:6;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:14px;padding:14px 38px 14px 14px;font-size:13px;line-height:1.5;display:none}
+#card .x{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:8px;border:0;background:transparent;font-size:22px;line-height:1}
 #card h3{margin:0 0 4px;font-size:14px}
 #card p{margin:0 0 6px;color:var(--mute)}
 #bar{position:absolute;right:16px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;z-index:5;padding-bottom:env(safe-area-inset-bottom,0)}
@@ -37,42 +38,58 @@ button:focus-visible,li:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #menu{display:none;position:absolute;left:12px;top:12px;z-index:6;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:13px}
 .tag{font:600 11px 'Segoe UI',sans-serif;color:#f4ead7;background:rgba(14,13,12,.74);padding:3px 10px;border-radius:12px;border-left:3px solid;white-space:nowrap}
 .tag.sm{font-size:9.5px;padding:2px 7px}
-.nolabels .tag{display:none}
-@media(max-width:760px){
- #menu{display:block}
- #panel{display:none;left:8px;right:8px;top:56px;width:auto;max-height:58%}
- #panel.open{display:block}
- #bar{left:8px;right:8px;justify-content:center}
- #bar button{padding:8px 10px;font-size:11px}
+.nolabels .tag,.hz .tag[data-cat=z],.hi .tag[data-cat=i],.hp .tag[data-cat=p],.hd .tag[data-cat=d]{display:none}
+.outside .tag:not([data-ext]){display:none}
+button{-webkit-tap-highlight-color:transparent}
+#hint{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);font-size:12px;color:var(--ink);background:var(--panel);padding:8px 14px;border-radius:999px;z-index:4;pointer-events:none;text-align:center;max-width:90%;animation:hintfade .6s ease 7s forwards}
+@keyframes hintfade{to{opacity:0;visibility:hidden}}
+@media(max-width:760px),(pointer:coarse) and (max-height:520px){
+ #menu{display:block;top:calc(10px + env(safe-area-inset-top,0px));left:10px;padding:11px 18px;font-size:14px;min-height:44px}
+ #panel{display:block;position:fixed;left:0;right:0;top:auto;bottom:0;width:auto;max-height:66vh;max-height:66dvh;border-radius:18px 18px 0 0;transform:translateY(105%);transition:transform .28s ease;padding:12px 14px calc(18px + env(safe-area-inset-bottom,0px));z-index:8;-webkit-overflow-scrolling:touch}
+ #panel.open{transform:none}
+ #panel::before{content:'';display:block;width:42px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);margin:0 auto 10px}
+ .btns button{min-height:44px;font-size:13px}
+ #zones li{padding:12px 8px;font-size:14px}
+ #bar{left:0;right:0;bottom:0;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(0,0,0,.5));-webkit-overflow-scrolling:touch}
+ #bar button{flex:0 0 auto;min-height:42px;padding:8px 14px;font-size:13px;white-space:nowrap}
+ body.sheet #bar,body.sheet #hint{display:none}
+ #card{left:8px;right:8px;width:auto;top:auto;bottom:calc(68px + env(safe-area-inset-bottom,0px))}
+ #hint{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+ .tag{font-size:10px;padding:2px 7px}.tag.sm{font-size:8.5px;padding:1px 5px}
 }
 </style>
 </head>
 <body>
-<button id="menu" aria-label="Open controls">Controls</button>
+<button id="menu" aria-label="Open controls">Menu</button>
 <aside id="panel">
   <h1>Heritage Tobacco</h1>
   <p class="sub">Shed from your drawing: 50 ft x 140 ft, 7,000 sq.ft, 25 ft eave height, 20 ft opening on the road side.</p>
   <div class="chips"><span>8 laborers</span><span>2 managers</span><span>6 portal frames</span><span>2 fermentation lofts</span></div>
   <h2>Camera views</h2>
   <div class="btns" id="views"></div>
+  <h2>Names on screen</h2>
+  <div class="btns nbtns" id="names"></div>
   <h2>Zones (sq.ft)</h2>
   <ul id="zones"></ul>
-  <div id="card"></div>
 </aside>
+<div id="card"></div>
 <div id="bar">
   <button id="bDay" aria-pressed="false">Night</button>
   <button id="bSolid" aria-pressed="false">Solid shell</button>
   <button id="bRoof" aria-pressed="true">Roof</button>
   <button id="bRight" aria-pressed="false">Right wall</button>
-  <button id="bLab" aria-pressed="true">Labels</button>
+  <button id="bLab" aria-pressed="true">Names</button>
   <button id="bRot" aria-pressed="false">Auto-rotate</button>
 </div>
+
+<div id="hint">Drag to rotate, pinch or scroll to zoom, two fingers or right-drag to pan</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
 <script>
 const $=s=>document.querySelector(s);
+const MOB=matchMedia('(max-width:760px),(pointer:coarse) and (max-height:520px)');
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
 const M=(c,r=.6,m=.1,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:r,metalness:m},o));
 const scene=new THREE.Scene();
@@ -81,7 +98,7 @@ scene.fog=new THREE.FogExp2(0xb7c6cf,.0016);
 const cam=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.5,1500);
 cam.position.set(100,75,140);
 const ren=new THREE.WebGLRenderer({antialias:true});
-ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.setSize(innerWidth,innerHeight);
+ren.setPixelRatio(Math.min(devicePixelRatio,MOB.matches?1.5:2));ren.setSize(innerWidth,innerHeight);
 ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;
 ren.outputEncoding=THREE.sRGBEncoding;ren.toneMapping=THREE.ACESFilmicToneMapping;
 document.body.prepend(ren.domElement);
@@ -96,12 +113,12 @@ ctl.target.set(0,6,10);
 const W=new THREE.Group();W.position.y=.5;scene.add(W);
 const B=(w,h,d,mat,x,y,z,par=W,sh=true)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=sh;par.add(m);return m};
 const Cy=(r1,r2,h,mat,x,y,z,par=W,n=20)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,n),mat);m.position.set(x,y,z);m.castShadow=true;par.add(m);return m};
-function tag(t,x,y,z,col='#d9a441',sm){const d=document.createElement('div');d.className='tag'+(sm?' sm':'');d.textContent=t;d.style.borderColor=col;const o=new THREE.CSS2DObject(d);o.position.set(x,y,z);scene.add(o);return o}
+function tag(t,x,y,z,col='#d9a441',sm,cat='z',ext){const d=document.createElement('div');d.className='tag'+(sm?' sm':'');d.dataset.cat=cat;if(ext)d.dataset.ext=1;d.textContent=t;d.style.borderColor=col;const o=new THREE.CSS2DObject(d);o.position.set(x,y,z);scene.add(o);return o}
 
 /* lights */
 const hemi=new THREE.HemisphereLight(0xdfeaf2,0x6b5d4a,.9);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff1d6,1.6);
-sun.position.set(80,140,60);sun.castShadow=true;const SM=innerWidth<760?2048:4096;sun.shadow.mapSize.set(SM,SM);
+sun.position.set(80,140,60);sun.castShadow=true;const SM=MOB.matches?2048:4096;sun.shadow.mapSize.set(SM,SM);
 Object.assign(sun.shadow.camera,{left:-110,right:110,top:110,bottom:-110,near:1,far:400});sun.shadow.bias=-.0004;scene.add(sun);
 const bulbMat=M(0xffd9a0,.4,0,{emissive:0xffd9a0,emissiveIntensity:.3});
 const ceil=[-56,-30,-4,22,48].map(z=>{
@@ -174,7 +191,7 @@ Z.forEach(z=>{const [x0,x1,z0,z1]=z.r;z.cx=(x0+x1)/2;z.cz=(z0+z1)/2;
   if(!z.nol)outline(z.r,z.c);
   if(z.k!=='in'||!z.nol)tag(z.n+' '+z.a.toLocaleString(),z.cx,z.ty,z.cz,z.c)});
 tag('Left loft 600',-20,16,20,'#d08a55');tag('Right loft 600',20,16,20,'#d08a55');
-tag('TOTAL AREA 7,000 SQ.FT',0,2,-7,'#ffffff');
+tag('TOTAL AREA 7,000 SQ.FT',0,2,-7,'#ffffff',false,'d');
 
 /* rooms */
 function room(r,col,opq){const [x0,x1,z0,z1]=r,w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2;
@@ -244,9 +261,37 @@ for(let i=0;i<6;i++)B(25,.02,.25,M(0xffffff,.7,0),-43.5,.5,74+i*10,W,false);
   [-4,4].forEach(x=>[-3,3].forEach(zz=>{Cy(1.1,1.1,.8,dk,-43.5+x,1.1,z+zz,W,12).rotation.x=Math.PI/2}))});
 /* dimension lines from the drawing */
 const gold=new THREE.LineBasicMaterial({color:0xd9a441});
-function dim(a,b,t){scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(...a),V(...b)]),gold));tag(t,(a[0]+b[0])/2,(a[1]+b[1])/2+1.5,(a[2]+b[2])/2)}
+function dim(a,b,t){scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(...a),V(...b)]),gold));tag(t,(a[0]+b[0])/2,(a[1]+b[1])/2+1.5,(a[2]+b[2])/2,'#d9a441',false,'d',1)}
 dim([-25,1,77],[25,1,77],'50 ft');dim([-33,1,-70],[-33,1,70],'140 ft');dim([-33,1,74],[-33,26,74],'25 ft eave height');
-tag('Front opening 20 ft',0,21,72,'#ffffff');tag('ROAD',0,3,140,'#ffffff');
+tag('Front opening 20 ft',0,21,72,'#ffffff',false,'d',1);tag('ROAD',0,3,140,'#ffffff',false,'d',1);
+
+/* exterior details: sign, windows, paving, boundary wall and gate, lamp posts, roof vents, fire exit */
+const winMat=M(0x9fd0e8,.1,.3,{emissive:0x4a7a99,emissiveIntensity:.35});
+[-60,-40,-20,0,20,40,60].forEach(z=>{B(.12,3,9,winMat,-25.55,17.5,z,walls,false);B(.12,3,9,winMat,.3,5,z,rightWall,false)});
+const sc=document.createElement('canvas');sc.width=1024;sc.height=160;const sg=sc.getContext('2d');
+sg.fillStyle='#14110d';sg.fillRect(0,0,1024,160);sg.strokeStyle='#d9a441';sg.lineWidth=6;sg.strokeRect(8,8,1008,144);
+sg.fillStyle='#d9a441';sg.font='700 84px "Segoe UI",Arial,sans-serif';sg.textAlign='center';sg.textBaseline='middle';sg.fillText('HERITAGE TOBACCO',512,86);
+const sign=new THREE.Mesh(new THREE.PlaneGeometry(26,4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc)}));
+sign.position.set(0,22,70.6);W.add(sign);
+[-12.5,12.5].forEach(x=>B(1.2,.7,.9,bulbMat,x,16,70.9,W,false));
+B(24,.06,57,M(0x9a9ca0,.9,0),0,.03,98.5,W,false);
+const bw=M(0xd8cdb8,.9,0);
+B(.8,7,205,bw,-85,3.5,25);B(.8,7,205,bw,85,3.5,25);B(170,7,.8,bw,0,3.5,-77.5);
+B(70,7,.8,bw,-50,3.5,127.5);B(70,7,.8,bw,50,3.5,127.5);
+[-15,15].forEach(x=>{B(2.2,10,2.2,M(0xb9ad94,.9,0),x,5,127.5);const l=new THREE.Mesh(new THREE.SphereGeometry(.9,12,12),bulbMat);l.position.set(x,10.9,127.5);W.add(l)});
+[[-40,116],[40,116],[-40,60],[40,60],[-60,-10],[60,-10]].forEach(([x,z])=>{Cy(.35,.5,18,M(0x2b2f33,.5,.6),x,9,z,W,8);B(3,.6,1.4,bulbMat,x,18.3,z,W,false)});
+[-56,-28,0,28,56].forEach(z=>{Cy(1,1.5,2.4,M(0x9aa3aa,.3,.8),0,25+RISE+1.9,z,roofG,12)});
+[-68,-41,-13,15,43,68].forEach(z=>[-26.7,26.7].forEach(x=>Cy(.4,.4,24,M(0x2b2f33,.5,.5),x,12,z,walls,8)));
+B(.2,7,3.6,M(0x2f6b3a,.6),-25.6,3.5,-60,walls,false);
+
+/* names for structure and things (cat i); ext=1 means visible from outside */
+[['Portal frame, 28 ft bays',-24.6,27,-41.5,0],['Roof ventilator',0,34,28,1],['Roller shutter',10,20.5,71,1],['Fire exit door',-25.6,9,-60,1],
+ ['Gutter and downpipe',-26.7,12,-41,1],['Main gate',0,13,127.5,1],['Boundary wall',-85,9,40,1],['Lamp post',40,20,116,1],['Truck at loading bay',0,13,86,1],
+ ['Glass windows',-25.6,20,0,1],['Loft stairs',-22.5,6,58,0],['Loft stairs',22.5,6,58,0],['Fermentation berths',-20,17,10,0],
+ ['Pandarpuri machines',-15,9,-35,0],['Shisha units',15,10,-35,0],['Pallet racks',0,11,-67,0],['Raw material drums',0,4.5,-55,0],
+ ['Packing machine',-15,10,20,0],['Conveyor belt',-15,5,34.5,0],['Finished product boxes',-16,5,59,0],['Compressors',16,9,18,0],
+ ['Electrical panels',20.5,8,34,0],['Lab benches',18,6,-4,0],['Meeting table',-8,5,-4.5,0],['Office desks',-19,6,-4,0]]
+ .forEach(([n,x,y,z,e])=>tag(n,x,y,z,'#cfd8dc',true,'i',e));
 
 /* steam */
 const spr=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');
@@ -267,7 +312,7 @@ function worker(x,z,col,name,mgr,ax,amp,sp,ph){
   const head=new THREE.Mesh(new THREE.SphereGeometry(.17,16,16),skin);head.position.y=1.37;head.castShadow=true;g.add(head);
   const hat=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10,0,Math.PI*2,0,Math.PI/2),M(mgr?0xd9a441:0xf2f2f2,.5,.1));hat.position.y=1.4;g.add(hat);
   const limb=(w,h,px,py,m)=>{const geo=new THREE.BoxGeometry(w,h,w);geo.translate(0,-h/2,0);const l=new THREE.Mesh(geo,m);l.position.set(px,py,0);l.castShadow=true;g.add(l);return l};
-  workers.push({g,head,t:tag(name,x,9,z,mgr?'#d9a441':'#ffffff',true),legs:[limb(.18,.6,-.13,.6,pm),limb(.18,.6,.13,.6,pm)],arms:[limb(.14,.5,-.33,1.18,cl),limb(.14,.5,.33,1.18,cl)],x,z,ax,amp,sp,ph,dir:1})}
+  workers.push({g,head,t:tag(name,x,9,z,mgr?'#d9a441':'#ffffff',true,'p'),legs:[limb(.18,.6,-.13,.6,pm),limb(.18,.6,.13,.6,pm)],arms:[limb(.14,.5,-.33,1.18,cl),limb(.14,.5,.33,1.18,cl)],x,z,ax,amp,sp,ph,dir:1})}
 const wc=[0xff6666,0x66dd66,0xffaa44,0xaa66ff,0x44ccff,0xff88aa,0x66e0b0,0xff9f7a];
 [[-9,-44,'z',3,.5],[-9,-35,'z',3,.5],[-9,-26,'z',3,.5],[9,-44,'z',3,.5],[9,-35,'z',3,.5],[9,-26,'z',3,.5],[1,25,'z',14,.22],[0,56,'x',7,.35]]
  .forEach(([x,z,ax,a,s],i)=>worker(x,z,wc[i],'Laborer '+(i+1),false,ax,a,s,i*1.3));
@@ -275,46 +320,62 @@ worker(-4,-51,0x2f6fd0,'Production Manager',true,'z',0,0,0);
 worker(7,-14.5,0x2f6fd0,'Quality Manager',true,'z',0,0,2);
 
 /* UI, views, camera */
-const P={overview:{p:[100,75,140],l:[0,6,10]},top:{p:[0,215,.01],l:[0,0,0]},iso:{p:[125,95,125],l:[0,0,0]},
+const P={outside:{p:[-95,30,170],l:[0,12,35]},outside2:{p:[135,45,-150],l:[0,10,0]},overview:{p:[100,75,140],l:[0,6,10]},top:{p:[0,215,.01],l:[0,0,0]},iso:{p:[125,95,125],l:[0,0,0]},
   front:{p:[0,16,215],l:[0,14,0]},road:{p:[55,8,165],l:[0,8,50]},fly:null,worker:null};
-const VW=[['overview','Overview'],['top','Top plan'],['iso','Isometric'],['front','Front elevation'],['road','Road view'],['fly','Fly-through'],['worker','Worker view']];
+const VW=[['outside','Outside look'],['outside2','Outside rear'],['overview','Overview'],['top','Top plan'],['iso','Isometric'],['front','Front elevation'],['road','Road view'],['fly','Fly-through'],['worker','Worker view']];
 let mode='orbit',tw=null,active='overview';
-function fly(p,l,d=1.7){tw={p0:cam.position.clone(),l0:ctl.target.clone(),p1:V(...p),l1:V(...l),t:0,d}}
+function fly(p,l,d=1.7){const asp=innerWidth/innerHeight,k=(asp<1&&p[1]<150)?Math.min(2.2,.8/asp):1,L=V(...l);
+  tw={p0:cam.position.clone(),l0:ctl.target.clone(),p1:V(...p).sub(L).multiplyScalar(k).add(L),l1:L,t:0,d}}
 function mark(){document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('on',b.dataset.v===active));
   document.querySelectorAll('#zones li').forEach(li=>li.classList.toggle('on',li.dataset.z===active))}
 function setRot(v){ctl.autoRotate=v;$('#bRot').setAttribute('aria-pressed',v)}
 function setView(id){
+  if(id==='outside'||id==='outside2')enterOutside();else leaveOutside();
   if(mode!=='orbit'){const d=V(0,0,0);cam.getWorldDirection(d);ctl.target.copy(cam.position).addScaledVector(d,15)}
   active=id;mode=(id==='fly'||id==='worker')?id:'orbit';tw=null;ctl.enabled=mode==='orbit';setRot(false);
-  $('#card').style.display='none';if(P[id])fly(P[id].p,P[id].l);mark();if(innerWidth<760)$('#panel').classList.remove('open')}
+  $('#card').style.display='none';if(P[id])fly(P[id].p,P[id].l);mark();sheet(false)}
 VW.forEach(([id,n])=>{const b=document.createElement('button');b.textContent=n;b.dataset.v=id;b.onclick=()=>setView(id);$('#views').appendChild(b)});
 Z.forEach((z,i)=>{const li=document.createElement('li');li.tabIndex=0;li.dataset.z='z'+i;
   li.innerHTML=`<div class="r"><span><i style="background:${z.c}"></i>${z.n}</span><b>${z.a.toLocaleString()}</b></div><div class="bar"><s style="width:${z.a/24.5}%;background:${z.c}"></s></div>`;
-  const go=()=>{mode='orbit';ctl.enabled=true;active='z'+i;const [x0,x1,z0,z1]=z.r,k=Math.max(Math.min(Math.max(x1-x0,z1-z0),50),26);
+  const go=()=>{leaveOutside();mode='orbit';ctl.enabled=true;active='z'+i;const [x0,x1,z0,z1]=z.r,k=Math.max(Math.min(Math.max(x1-x0,z1-z0),50),26);
     fly([z.cx+k*.7,k*.7+8,z.cz+k*1.1],[z.cx,3,z.cz]);mark();
     const note=z.k==='out'?'Outside the 7,000 sq.ft shed':z.k==='above'?'Mezzanine floor space above the ground zones':(z.a/70).toFixed(1)+'% of the 7,000 sq.ft shed';
-    const c=$('#card');c.style.display='block';c.innerHTML=`<h3>${z.n}</h3><p>${z.d}</p><b style="color:var(--gold)">${z.a.toLocaleString()} sq.ft</b> &nbsp;${note}`;
-    if(innerWidth<760)$('#panel').classList.remove('open')};
+    const c=$('#card');c.style.display='block';c.innerHTML=`<button class="x" aria-label="Close" onclick="this.parentNode.style.display='none'">&times;</button><h3>${z.n}</h3><p>${z.d}</p><b style="color:var(--gold)">${z.a.toLocaleString()} sq.ft</b> &nbsp;${note}`;
+    sheet(false)};
   li.onclick=go;li.onkeydown=e=>{if(e.key==='Enter')go()};$('#zones').appendChild(li)});
-$('#menu').onclick=()=>$('#panel').classList.toggle('open');
+function sheet(v){$('#panel').classList.toggle('open',v);document.body.classList.toggle('sheet',v);$('#menu').textContent=v?'Close':'Menu'}
+$('#menu').onclick=()=>sheet(!$('#panel').classList.contains('open'));
 
 /* toggles */
 let night=false;
 function setNight(n){night=n;const c=n?0x070b0d:0xb7c6cf;scene.background.set(c);scene.fog.color.set(c);scene.fog.density=n?.004:.0016;
   hemi.intensity=n?.22:.9;sun.intensity=n?.25:1.6;sun.color.set(n?0x8aa4ff:0xfff1d6);
-  ceil.forEach(l=>l.intensity=n?1.6:.35);bulbMat.emissiveIntensity=n?2:.3;ren.toneMappingExposure=n?1.25:1;
+  ceil.forEach(l=>l.intensity=n?1.6:.35);bulbMat.emissiveIntensity=n?2:.3;winMat.emissiveIntensity=n?2.2:.35;ren.toneMappingExposure=n?1.25:1;
   $('#bDay').textContent=n?'Day':'Night';$('#bDay').setAttribute('aria-pressed',n)}
-function setSolid(b){shellMats.forEach(m=>{m.transparent=!b;m.opacity=b?1:.13;m.depthWrite=b;m.needsUpdate=true});$('#bSolid').setAttribute('aria-pressed',b)}
-let solid=false;
+function setSolid(b){walls.children.concat(roofG.children).forEach(m=>{m.castShadow=m.receiveShadow=b});shellMats.forEach(m=>{m.transparent=!b;m.opacity=b?1:.13;m.depthWrite=b;m.needsUpdate=true});$('#bSolid').setAttribute('aria-pressed',b)}
+let solid=false,outsideOn=false,rwPrev=false,nPrev=true;
+function enterOutside(){if(!outsideOn){outsideOn=true;rwPrev=rightWall.visible;nPrev=N.all;N.all=false}
+  solid=true;setSolid(true);roofG.visible=true;$('#bRoof').setAttribute('aria-pressed',true);
+  rightWall.visible=true;$('#bRight').setAttribute('aria-pressed',true);
+  lr.domElement.classList.add('outside');applyNames()}
+function leaveOutside(){if(!outsideOn)return;outsideOn=false;solid=false;setSolid(false);
+  rightWall.visible=rwPrev;$('#bRight').setAttribute('aria-pressed',rwPrev);
+  N.all=nPrev;lr.domElement.classList.remove('outside');applyNames()}
 $('#bDay').onclick=()=>setNight(!night);
 $('#bSolid').onclick=()=>{solid=!solid;setSolid(solid)};
 $('#bRoof').onclick=e=>{roofG.visible=!roofG.visible;e.target.setAttribute('aria-pressed',roofG.visible)};
 $('#bRight').onclick=e=>{rightWall.visible=!rightWall.visible;e.target.setAttribute('aria-pressed',rightWall.visible)};
-$('#bLab').onclick=e=>{const h=lr.domElement.classList.toggle('nolabels');e.target.setAttribute('aria-pressed',!h)};
+const N={all:true,z:true,i:true,p:true,d:true};
+if(MOB.matches){N.i=false;N.p=false}
+function applyNames(){const c=lr.domElement.classList;c.toggle('nolabels',!N.all);c.toggle('hz',!N.z);c.toggle('hi',!N.i);c.toggle('hp',!N.p);c.toggle('hd',!N.d);
+  document.querySelectorAll('#names button').forEach(b=>b.setAttribute('aria-pressed',N[b.dataset.n]));$('#bLab').setAttribute('aria-pressed',N.all)}
+[['all','All names'],['z','Areas'],['i','Structure and things'],['p','People'],['d','Measurements']].forEach(([k,n])=>{
+  const b=document.createElement('button');b.textContent=n;b.dataset.n=k;b.onclick=()=>{N[k]=!N[k];applyNames()};$('#names').appendChild(b)});
+$('#bLab').onclick=()=>{N.all=!N.all;applyNames()};
 $('#bRot').onclick=()=>{if(mode!=='orbit')setView('overview');setRot(!ctl.autoRotate)};
 ctl.addEventListener('start',()=>{tw=null;setRot(false)});
-ren.domElement.addEventListener('pointerdown',()=>{if(mode!=='orbit')setView('overview')});
-setNight(false);setSolid(false);mark();
+ren.domElement.addEventListener('pointerdown',()=>{sheet(false);if(mode!=='orbit')setView('overview')});
+setNight(false);setSolid(false);mark();applyNames();setView('outside');
 
 /* fly-through path above the central aisle, under the roof */
 const curve=new THREE.CatmullRomCurve3(Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2;return V(Math.cos(a)*11,16+Math.sin(a*2)*1.5,Math.sin(a)*52)}),true);
